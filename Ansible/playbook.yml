@@ -1,0 +1,19 @@
+---
+- name: Executing Dev Roles
+  hosts: dev
+  vars_files: variables.yml
+  roles:
+     - role: dev
+       tags: ["dev"]
+- name: Executing QA Roles
+  hosts: qa
+  vars_files: variables.yml
+  roles:
+     - role: qa
+       tags: ["qa"]
+- name: Executing PROD Roles
+  hosts: prod
+  vars_files: variables.yml
+  roles:
+     - role: prod
+       tags: ["prod"]
