@@ -1,0 +1,15 @@
+pipeline{
+    agent any
+    stages{
+        stage('checkout scm'){      #This piece of code can be derived from pipeline syntax -> Declarative directive-generator
+            steps{
+            checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/ramktr/devops.git']])
+            }
+        }
+        stage('Check cotents'){
+            steps{
+                sh 'ls -ltr'
+            }
+        }
+    }
+}

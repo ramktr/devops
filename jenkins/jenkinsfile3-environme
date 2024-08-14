@@ -1,0 +1,130 @@
+pipeline{
+    agent any
+    environments{
+        Name = Ram
+    }
+    stages{
+        stage('check the environment'){
+            steps{
+                echo "Print the environment variable ${env.Name}"
+            }
+        }
+    }
+}
+###########################
+#Pipeline with Parameters
+
+pipeline{
+    agent any
+    parameters {
+        string defaultValue: 'Ram', description: 'Enter the FN', name: 'FN'
+        }
+    stages{
+        stage('params'){
+            steps{
+                echo "My FN is $params.FN"
+            }
+        }
+    }
+}
+###########################
+#Upstream and downstream job
+
+pipeline{
+    agent any
+    stages{
+        stage('upstream job'){
+            steps{
+                echo "This is my upstream"
+            }
+        }
+        stage('downstream job'){
+            steps{
+                build job: 'maven-freestyle'  # This statement will trigger maven-freestyle job once the previous task is completed and wait for it to complete.
+            }
+        }
+    }
+}
+
+###########################
+# Post actions
+
+pipeline{
+    agent any
+    stages{
+        stage('stage1'){
+            steps{
+                echo "This is to test post action"
+            }
+        }
+    }
+    post {
+        always {
+             echo "This is always"  
+        }
+        success {
+              echo "This is for success"
+        }
+        failure {
+              echo "This is for failure"
+        }
+    }
+    
+}
+###########################
+# Build in variables
+pipeline{
+    agent any
+    stages{
+        stage('built in variables'){
+            steps{
+                echo "job number : ${env.BUILD_NUMBER}"
+                echo "job NAME : ${env.JOB_NAME}"
+            }
+
+        }
+    }
+}
+##########################
+#Applying loops
+
+for
+pipeline{
+    agent any
+    stages{
+        stage('loop usage'){
+            steps{
+                script{
+                    echo "Table of 5"
+                    for (int i =1; i <= 10; i++) {   #for loop
+                        echo "5 X ${i} = ${5 * i}"
+                    }
+                }
+            }
+
+        }
+    }
+}
+
+
+While
+
+Do-while
+
+###############
+#sonarqube installation
+Perform the installation in a server
+Once application is online , create a new project.
+Use Jenkins as an option for integration , this will give the code snippet to be added in the pipeline file.
+Fetch the global token ,  from jenkins url 
+Application runs in 9000
+In Jenkins, 
+Add credentials
+Install the plugin
+setup the tools section
+create a job 
+
+########################
+Nexus Artifactory
+Java 1.8 installation
+Application works on 8081
