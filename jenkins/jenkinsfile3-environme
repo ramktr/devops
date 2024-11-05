@@ -1,12 +1,12 @@
 pipeline{
     agent any
     environments{
-        Name = Ram
+        AWS_DEFAULT_REGION=us-east-1
     }
     stages{
         stage('check the environment'){
             steps{
-                echo "Print the environment variable ${env.Name}"
+                echo "Print the environment variable ${env.AWS_DEFAULT_REGION}"
             }
         }
     }
@@ -128,3 +128,34 @@ create a job
 Nexus Artifactory
 Java 1.8 installation
 Application works on 8081
+########################
+Establish communication to AWS using AWS credentials.
+
+def awsAuth(exec){
+    withCredentials([aws(
+        accessKeyVariable: 'AWS_ACCESS_KEY_ID', 
+        credentialsId: 'tf_deploy', 
+        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+        )]) {
+            exec()
+        }
+}
+
+pipeline{
+    agent any
+    stages{
+        stage('Stage 1:Test Connect to AWS'){
+            steps{
+                script{
+                    awsAuth{
+                        aws sts get-caller-identity
+                    }
+                }
+            }
+        }
+    }
+}
+
+###############################################
+Docker build and push to docker repo hub
+

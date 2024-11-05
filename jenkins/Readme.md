@@ -17,7 +17,7 @@
 #jenkins jobs types:
 
 Jobs
-|_____ Frestyle  -> Basic script either simple/complex
+|_____ Frestyle  -> General job which can checkout upto from one scm, it can be either simple/complex
 |_____ Pipeline  -> Job with multiple stages based on the jenkinsfile
 |_____ Multibranch -> evolved version of pipeline job, here tasks will get executed based on the branch names
 |_____ Multiconfig -> Matrix of jobs, example if JDK 11,17,8 are need to be tested this job can help in testing all the features one by one.

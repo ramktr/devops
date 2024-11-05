@@ -1,0 +1,90 @@
+pipeline {
+    agent any
+
+    parameters {
+        choice(name: 'ENVIRONMENT', choices: ['dev', 'qa', 'prod'], description: 'Select the environment to deploy')
+    }
+
+    environment {
+        TFVARS_FILE = "${ENVIRONMENT}.tfvars"  // Dynamically select the .tfvars file based on environment
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                // Check out the Terraform code from Git
+                git 'https://your-git-repository.com/terraform-repo.git'
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                // Authenticate with AWS and run Terraform Init
+                script {
+                    awsAuth {
+                        sh 'terraform init'
+                    }
+                }
+            }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                // Authenticate with AWS and run Terraform Plan
+                script {
+                    awsAuth {
+                        sh "terraform plan -var-file=${TFVARS_FILE}"
+                    }
+                }
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                // Authenticate with AWS and run Terraform Apply
+                script {
+                    awsAuth {
+                        sh "terraform apply -var-file=${TFVARS_FILE} -auto-approve"
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            // Clean up workspace after the job is done
+            cleanWs()
+        }
+    }
+}
+
+// Function for AWS Authentication
+def awsAuth(exec) {
+    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', 
+        credentialsId: 'tf_deploy',
+        accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+        exec()
+    }
+}
+
+def awsAuth(exec){
+    withCredentials([aws(
+        accessKeyVariable: 'AWS_ACCESS_KEY_ID', 
+        credentialsId: 'tf_deploy', 
+        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+        )]) {
+            exec()
+        }
+}
+
+def aswAuth(exec){
+    withCredentials([aws(
+        accessKeyVariable: "",
+        secretKeyVariable: "",
+        credentialsId: 
+    )]) {
+        exec()
+    }
+}

@@ -1,0 +1,55 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_DEFAULT_REGION = 'us-east-1'
+        IMAGE_NAME = 'your-repo/your-app'
+        DOCKER_IMAGE_TAG = "${env.BUILD_ID}" // Use build ID or a unique tag
+        KUBECONFIG = credentials('your-kubeconfig') // Store kubeconfig in Jenkins credentials
+    }
+
+    stages {
+        stage('Setup AWS & Kubectl') {
+            steps {
+                // Ensure EKS cluster config is up to date
+                sh 'aws eks --region $AWS_DEFAULT_REGION update-kubeconfig --name my-new-cluster'
+                
+                // Verify connection to EKS
+                sh 'kubectl get nodes'
+            }
+        }
+        
+        stage('Checkout Code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/your-repo/your-app.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                // Build and tag the Docker image
+                sh "docker build -t $IMAGE_NAME:$DOCKER_IMAGE_TAG ."
+                
+                // Push the image to the Docker registry (Docker Hub or ECR)
+                sh "docker push $IMAGE_NAME:$DOCKER_IMAGE_TAG"
+            }
+        }
+
+        stage('Update Deployment') {
+            steps {
+                // Update the Kubernetes deployment with the new image
+                sh "kubectl set image deployment/your-app your-app=$IMAGE_NAME:$DOCKER_IMAGE_TAG --namespace=my-namespace"
+
+                // Verify the update
+                sh 'kubectl rollout status deployment/your-app --namespace=my-namespace'
+                sh 'kubectl get pods --namespace=my-namespace'
+            }
+        }
+    }
+
+    post {
+        always {
+            // Cleanup resources if needed
+        }
+    }
+}
